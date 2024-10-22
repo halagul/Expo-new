@@ -26,6 +26,7 @@ const Home = () => {
 };
 
 const Login = (props) => {
+  // hala has worked on the login page
   return (
     <View>
       <Text>This is my first navigation login screen</Text>
