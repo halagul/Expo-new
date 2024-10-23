@@ -12,7 +12,7 @@ const useFetchSurahs = () => {
         const response = await fetch('https://api.alquran.cloud/v1/surah');
         const json = await response.json();
         setSurahs(json.data);
-        await AsyncStorage.setItem('surahs', JSON.stringify(json.data)); 
+        await AsyncStorage.setItem('surahs', JSON.stringify(json.data));
       } catch (error) {
         console.error('Error fetching surahs:', error);
         const offlineSurahs = await AsyncStorage.getItem('surahs');
@@ -29,7 +29,6 @@ const useFetchSurahs = () => {
   return { surahs, loading };
 };
 
-
 const useFetchAyahs = (surahId) => {
   const [ayahs, setAyahs] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -42,7 +41,7 @@ const useFetchAyahs = (surahId) => {
           const response = await fetch(`https://api.alquran.cloud/v1/surah/${surahId}/en.asad`);
           const json = await response.json();
           setAyahs(json.data.ayahs);
-          await AsyncStorage.setItem(`surah-${surahId}`, JSON.stringify(json.data.ayahs)); 
+          await AsyncStorage.setItem(`surah-${surahId}`, JSON.stringify(json.data.ayahs));
         } catch (error) {
           console.error('Error fetching ayahs:', error);
           const offlineAyahs = await AsyncStorage.getItem(`surah-${surahId}`);
@@ -60,7 +59,6 @@ const useFetchAyahs = (surahId) => {
   return { ayahs, loading };
 };
 
-
 const QuranApp = () => {
   const { surahs, loading: surahLoading } = useFetchSurahs();
   const [selectedSurahId, setSelectedSurahId] = useState(null);
@@ -68,6 +66,10 @@ const QuranApp = () => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Quran App</Text>
+      </View>
+      
       {surahLoading ? (
         <ActivityIndicator size="large" color="#6200EE" />
       ) : (
@@ -75,47 +77,32 @@ const QuranApp = () => {
           data={surahs}
           keyExtractor={(item) => item.number.toString()}
           renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => setSelectedSurahId(item.number)}
-              style={styles.surahContainer}
-            >
-              <Text style={styles.surahTitle}>
-                {item.number}. {item.englishName} - {item.ayahs} Ayahs
-              </Text>
-            </TouchableOpacity>
+            <View>
+              <TouchableOpacity
+                onPress={() => setSelectedSurahId(item.number)}
+                style={styles.surahContainer}
+              >
+                <Text style={styles.surahTitle}>
+                  {item.number}. {item.englishName} - {item.ayahs} Ayahs
+                </Text>
+              </TouchableOpacity>
+              {selectedSurahId === item.number && ayahLoading ? (
+                <ActivityIndicator size="small" color="#6200EE" />
+              ) : (
+                selectedSurahId === item.number && ayahs.map((ayah) => (
+                  <View key={ayah.number} style={styles.ayahContainer}>
+                    <Text style={styles.ayahText}>{ayah.text}</Text>
+                  </View>
+                ))
+              )}
+            </View>
           )}
           contentContainerStyle={styles.surahList}
         />
       )}
-
-      {ayahLoading ? (
-        <ActivityIndicator size="large" color="#6200EE" />
-      ) : (
-        selectedSurahId && (
-          <View style={styles.selectedSurahContainer}>
-            <Text style={styles.selectedSurahTitle}>
-              Surah: {surahs.find(surah => surah.number === selectedSurahId)?.englishName}
-            </Text>
-            <ScrollView style={styles.scrollContainer}>
-              <FlatList
-                data={ayahs}
-                keyExtractor={(item) => item.number.toString()}
-                renderItem={({ item }) => (
-                  <View style={styles.ayahContainer}>
-                    <Text style={styles.ayahText}>{item.text}</Text>
-                  </View>
-                )}
-                showsVerticalScrollIndicator={false} 
-                scrollEnabled={false} 
-              />
-            </ScrollView>
-          </View>
-        )
-      )}
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -123,16 +110,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#F7F9FC',
     padding: 16,
   },
+  header: {
+    backgroundColor: '#9B51E0',
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    marginBottom: 20,
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 10,
+  },
   surahContainer: {
     backgroundColor: '#FFFFFF',
     padding: 15,
     marginVertical: 5,
     borderRadius: 10,
     elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
   },
   surahTitle: {
     fontSize: 18,
@@ -140,27 +137,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   surahList: {
-    paddingBottom: 20, 
-  },
-  selectedSurahContainer: {
-    marginTop: 20,
-    padding: 15,
-    backgroundColor: '#E1F5FE',
-    borderRadius: 10,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  selectedSurahTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#00796B',
-  },
-  scrollContainer: {
-    maxHeight: '60%', 
+    paddingBottom: 20,
   },
   ayahContainer: {
     backgroundColor: '#FFFFFF',
@@ -168,10 +145,6 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     borderRadius: 10,
     elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
   },
   ayahText: {
     fontSize: 16,
