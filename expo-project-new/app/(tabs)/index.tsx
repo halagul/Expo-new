@@ -1,53 +1,28 @@
-import React from 'react';
-import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
-import useFetchProducts from './useFetchProducts';
+import { StyleSheet } from 'react-native';
+import Main from '../Main';
 
-const App = () => {
-  const { products, loading } = useFetchProducts('https://simple-grocery-store-api.online/products');
-
+export default function HomeScreen() {
   return (
-    <View style={styles.container}>
-      {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : (
-        <FlatList
-          data={products}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.itemContainer}>
-              <Text style={styles.title}>{item.name}</Text>
-              <Text style={styles.price}>${item.price}</Text>
-            </View>
-          )}
-        />
-      )}
-    </View>
+     <Main />
+   
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: '#f5f5f5',
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
-  itemContainer: {
-    padding: 10,
-    margin: 10,
-    backgroundColor: '#fff',
-    borderRadius: 5,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
+  stepContainer: {
+    gap: 8,
+    marginBottom: 8,
   },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  price: {
-    fontSize: 16,
-    color: '#888',
+  reactLogo: {
+    height: 178,
+    width: 290,
+    bottom: 0,
+    left: 0,
+    position: 'absolute',
   },
 });
-
-export default App;
