@@ -1,41 +1,53 @@
-import React from "react";
-import { Button, Text, View, AppRegistry } from "react-native"; // Import AppRegistry
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
-const Stack = createNativeStackNavigator();
+import React from 'react';
+import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
+import useFetchProducts from './useFetchProducts';
 
 const App = () => {
-  return (
-    <NavigationContainer independent={true}> {/* Only one NavigationContainer */}
-      <Stack.Navigator>
-      <Stack.Screen name="Login" component={Login} />
+  const { products, loading } = useFetchProducts('https://simple-grocery-store-api.online/products');
 
-        <Stack.Screen name="Home" component={Home} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
-};
-
-const Home = () => {
   return (
-    <View>
-      <Text>This is my first navigation home screen</Text>
+    <View style={styles.container}>
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <FlatList
+          data={products}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.itemContainer}>
+              <Text style={styles.title}>{item.name}</Text>
+              <Text style={styles.price}>${item.price}</Text>
+            </View>
+          )}
+        />
+      )}
     </View>
   );
 };
 
-const Login = (props) => {
-  // hala has worked on the login page
-  return (
-    <View>
-      <Text>This is my first navigation login screen</Text>
-      <Button title="Go to Home" onPress={() => props.navigation.navigate("Home")} />
-    </View>
-  );
-};
-
-// Use the name defined in app.json
-AppRegistry.registerComponent("expo-project-new", () => App);
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+  itemContainer: {
+    padding: 10,
+    margin: 10,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  price: {
+    fontSize: 16,
+    color: '#888',
+  },
+});
 
 export default App;
